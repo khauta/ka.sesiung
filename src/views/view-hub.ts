@@ -1,35 +1,39 @@
 import { LitElement, html, css } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
-import { DataService } from '../services/mock-data';
-import { Resource } from '../types/index';
-import '../components/service-card-list';
+import { customElement, property } from 'lit/decorators.js';
+import { ResourceItem } from '../models/ResourceState';
 
 @customElement('view-hub')
 export class ViewHub extends LitElement {
-    @state() private _services: Resource[] = [];
-    @state() private _loading = true;
+    @property({ type: Array }) items: ResourceItem[] = [];
 
     static styles = css`
-    :host { display: block; padding: 16px; }
-    h2 { font-weight: 300; margin-bottom: 24px; color: #444; }
+    .grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+    .card { background: var(--surface-color, #fff); border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .badge-pro { background: gold; color: #000; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
+    @media (min-width: 768px) { .grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); } }
   `;
 
-    async connectedCallback() {
-        super.connectedCallback();
-        try {
-            const all = await DataService.getResources('user-123');
-            this._services = all.filter(r => r.type === 'service');
-        } finally {
-            this._loading = false;
-        }
-    }
-
     render() {
-        if (this._loading) return html`<p>Loading...</p>`;
+        const hubItems = this.items.filter(i => i.category === 'hub');
 
         return html`
-      <h2>My Hub</h2>
-      <service-card-list .services=${this._services}></service-card-list>
+      <section aria-labelledby="hub-heading">
+        <h2 id="hub-heading">My Active Services</h2>
+        <div class="grid">
+          ${hubItems.map(item => html`
+            <article class="card" tabindex="0">
+              <header style="display: flex; justify-content: space-between;">
+                <h3>${item.title}</h3>
+                ${item.isPremium ? html`<span class="badge-pro" aria-label="Premium Service">PRO</span>` : ''}
+              </header>
+              <p>${item.description}</p>
+              <footer style="margin-top: 12px; font-size: 0.9rem; color: gray;">
+                <strong>Est. Delivery:</strong> ${item.deliveryDate ? new Date(item.deliveryDate).toLocaleDateString() : 'TBD'}
+              </footer>
+            </article>
+          `)}
+        </div>
+      </section>
     `;
     }
 }

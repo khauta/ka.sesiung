@@ -68,7 +68,7 @@ export class ProfileExpander extends LitElement {
         return html`
       <div class="profile-container">
         <div class="avatar" @click="${() => this.isExpanded = !this.isExpanded}">
-           <img src="${this.userData.avatar || 'https://via.placeholder.com/40'}" alt="Profile" />
+           <img src="${this.userData.avatar || 'https://ui-avatars.com/api/?name=Client&background=random'}" alt="Profile" />
         </div>
 
         <div class="details ${this.isExpanded ? 'open' : ''}">

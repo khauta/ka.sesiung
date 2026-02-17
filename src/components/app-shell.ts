@@ -2,21 +2,24 @@ import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { router } from '../router/index';
 import './core-viewport';
+import './nav-trigger';
+import './profile-expander';
+import './splash-screen';
 
-// Icons (Simple SVGs for now)
+// Icons (Material Icons Font)
 const icons = {
-    menu: html`<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>`,
-    hub: html`<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>`,
-    tracker: html`<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>`,
-    vault: html`<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>`
+  hub: html`<span class="material-icons notranslate">dashboard</span>`,
+  tracker: html`<span class="material-icons notranslate">timeline</span>`,
+  vault: html`<span class="material-icons notranslate">lock</span>`
 };
 
 @customElement('app-shell')
 export class AppShell extends LitElement {
-    @state() private _drawerOpen = false;
-    @state() private _currentView = 'hub';
+  @state() private _drawerOpen = false;
+  @state() private _currentView = 'hub';
+  @state() private _booting = true;
 
-    static styles = css`
+  static styles = css`
     :host {
       display: flex;
       flex-direction: column;
@@ -24,6 +27,24 @@ export class AppShell extends LitElement {
       overflow: hidden;
       background: #f5f5f5;
       color: #333;
+    }
+
+    /* Required for Material Icons to render within Shadow DOM */
+    .material-icons {
+      font-family: 'Material Icons';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 24px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
     }
 
     header {
@@ -36,35 +57,12 @@ export class AppShell extends LitElement {
       z-index: 10;
     }
 
-    .menu-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 8px;
-      margin-right: 16px;
-      border-radius: 50%;
-    }
-    .menu-btn:hover { background: rgba(0,0,0,0.05); }
-
     h1 {
       flex: 1;
       font-size: 1.25rem;
       margin: 0;
       font-weight: 500;
-    }
-
-    .user-badge {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: #6200ee;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 0.9rem;
-      cursor: pointer;
+      margin-left: 16px;
     }
 
     .main-container {
@@ -99,7 +97,6 @@ export class AppShell extends LitElement {
         position: relative;
         transform: translateX(0);
       }
-      .menu-btn { display: none; }
     }
 
     .nav-item {
@@ -118,7 +115,7 @@ export class AppShell extends LitElement {
       background: #f5f5ff;
     }
     
-    .nav-item svg { margin-right: 12px; }
+    .nav-item svg, .nav-item .material-icons { margin-right: 12px; }
 
     core-viewport {
       flex: 1;
@@ -142,31 +139,40 @@ export class AppShell extends LitElement {
     @media (min-width: 768px) { .scrim { display: none; } }
   `;
 
-    connectedCallback() {
-        super.connectedCallback();
-        router.addEventListener('route-changed', (e: Event) => {
-            this._currentView = (e as CustomEvent).detail.view;
-            this._drawerOpen = false; // Close drawer on nav on mobile
-        });
-        router.resolveRoute();
-    }
+  connectedCallback() {
+    super.connectedCallback();
+    router.addEventListener('route-changed', (e: Event) => {
+      this._currentView = (e as CustomEvent).detail.view;
+      this._drawerOpen = false; // Close drawer on nav on mobile
+    });
+    router.resolveRoute();
 
-    private _toggleDrawer() {
-        this._drawerOpen = !this._drawerOpen;
-    }
+    // Simulate boot sequence / resource loading
+    setTimeout(() => {
+      this._booting = false;
+    }, 3000); // 3s boot
+  }
 
-    private _nav(view: string) {
-        router.navigate(`app://${view}`);
-    }
+  private _toggleDrawer() {
+    this._drawerOpen = !this._drawerOpen;
+  }
 
-    render() {
-        return html`
+  private _handleMenuToggle(e: CustomEvent) {
+    this._drawerOpen = e.detail.isOpen;
+  }
+
+  private _nav(view: string) {
+    router.navigate(`app://${view}`);
+  }
+
+  render() {
+    return html`
+      <splash-screen ?hidden=${!this._booting}></splash-screen>
+
       <header>
-        <button class="menu-btn" @click=${this._toggleDrawer} aria-label="Menu">
-          ${icons.menu}
-        </button>
+        <nav-trigger .isOpen=${this._drawerOpen} @menu-toggle=${this._handleMenuToggle}></nav-trigger>
         <h1>Ka Sesiung</h1>
-        <div class="user-badge" title="User Profile">A</div>
+        <profile-expander></profile-expander>
       </header>
 
       <div class="main-container">
@@ -187,5 +193,5 @@ export class AppShell extends LitElement {
         <core-viewport></core-viewport>
       </div>
     `;
-    }
+  }
 }

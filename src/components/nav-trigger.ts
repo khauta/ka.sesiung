@@ -3,10 +3,10 @@ import { customElement, property } from 'lit/decorators.js';
 
 @customElement('nav-trigger')
 export class NavTrigger extends LitElement {
-    @property({ type: Boolean }) isOpen = false;
+  @property({ type: Boolean }) isOpen = false;
 
-    // Use Shadow DOM to encapsulate styles, but allow global styles to penetrate if needed
-    static styles = css`
+  // Use Shadow DOM to encapsulate styles, but allow global styles to penetrate if needed
+  static styles = css`
     :host { display: inline-block; }
     
     /* extracted Material styles */
@@ -43,6 +43,7 @@ export class NavTrigger extends LitElement {
       word-wrap: normal;
       direction: ltr;
       -webkit-font-feature-settings: 'liga';
+      font-feature-settings: 'liga';
       -webkit-font-smoothing: antialiased;
     }
 
@@ -62,19 +63,19 @@ export class NavTrigger extends LitElement {
     }
   `;
 
-    private _toggleMenu() {
-        this.isOpen = !this.isOpen;
-        // Dispatch event for the App Shell to catch
-        this.dispatchEvent(new CustomEvent('menu-toggle', {
-            detail: { isOpen: this.isOpen },
-            bubbles: true,
-            composed: true
-        }));
-    }
+  private _toggleMenu() {
+    this.isOpen = !this.isOpen;
+    // Dispatch event for the App Shell to catch
+    this.dispatchEvent(new CustomEvent('menu-toggle', {
+      detail: { isOpen: this.isOpen },
+      bubbles: true,
+      composed: true
+    }));
+  }
 
-    render() {
-        // Note: Rendering the exact structure requested
-        return html`
+  render() {
+    // Note: Rendering the exact structure requested
+    return html`
       <button 
         @click="${this._toggleMenu}"
         class="mdc-icon-button mat-mdc-icon-button mat-unthemed" 
@@ -85,5 +86,5 @@ export class NavTrigger extends LitElement {
         <span class="mat-ripple mat-mdc-button-ripple"></span>
       </button>
     `;
-    }
+  }
 }
