@@ -4,9 +4,9 @@ import { Resource } from '../types/index';
 
 @customElement('service-card-list')
 export class ServiceCardList extends LitElement {
-    @property({ type: Array }) services: Resource[] = [];
+  @property({ type: Array }) services: Resource[] = [];
 
-    static styles = css`
+  static styles = css`
     :host { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
     .card {
       background: white;
@@ -27,20 +27,20 @@ export class ServiceCardList extends LitElement {
     .date { font-size: 0.85rem; color: #666; margin-top: auto; pt-4; }
   `;
 
-    render() {
-        if (!this.services.length) return html`<p>No active services.</p>`;
+  render() {
+    if (!this.services.length) return html`<p>No active services.</p>`;
 
-        return html`
+    return html`
       ${this.services.map(service => html`
         <div class="card ${service.meta?.tier || ''}">
           <div class="header">
             <h3>${service.title}</h3>
             <span class="badge ${service.meta?.tier || ''}">${service.meta?.tier || 'Standard'}</span>
           </div>
-          <div class="status">Status: <strong>${service.status}</strong></div>
-          ${service.nextDeliveryDate ? html`<div class="date">Next: ${service.nextDeliveryDate}</div>` : ''}
+          <div class="status">Status: <strong>${service.status.label}</strong></div>
+          ${service.deliveryDate ? html`<div class="date">Next: ${service.deliveryDate}</div>` : ''}
         </div>
       `)}
     `;
-    }
+  }
 }

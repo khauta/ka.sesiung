@@ -5,10 +5,10 @@ import { Resource } from '../types/index';
 
 @customElement('view-vault')
 export class ViewVault extends LitElement {
-    @state() private _files: Resource[] = [];
-    @state() private _loading = true;
+  @state() private _files: Resource[] = [];
+  @state() private _loading = true;
 
-    static styles = css`
+  static styles = css`
     :host { display: block; padding: 16px; }
     h2 { font-weight: 300; margin-bottom: 24px; color: #444; }
     
@@ -60,26 +60,27 @@ export class ViewVault extends LitElement {
     .download-btn:hover { background: #e0e0e0; }
   `;
 
-    async connectedCallback() {
-        super.connectedCallback();
-        try {
-            const all = await DataService.getResources('user-123');
-            this._files = all
-                .filter(r => r.type === 'file')
-                .sort((a, b) => b.timestamp - a.timestamp);
-        } finally {
-            this._loading = false;
-        }
+  async connectedCallback() {
+    super.connectedCallback();
+    try {
+      const all = await DataService.getResources('user-123');
+      this._files = all
+        .filter(r => r.type === 'file')
+        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    } finally {
+      this._loading = false;
     }
+  }
 
-    private _formatDate(ts: number) {
-        return new Date(ts).toLocaleDateString();
-    }
+  private _formatDate(ts?: number) {
+    if (!ts) return new Date().toLocaleDateString();
+    return new Date(ts).toLocaleDateString();
+  }
 
-    render() {
-        if (this._loading) return html`<p>Loading...</p>`;
+  render() {
+    if (this._loading) return html`<p>Loading...</p>`;
 
-        return html`
+    return html`
       <h2>Vault</h2>
       <div class="timeline">
         ${this._files.map(f => html`
@@ -87,11 +88,13 @@ export class ViewVault extends LitElement {
             <div class="item-date">${this._formatDate(f.timestamp)}</div>
             <div class="item-content">
               <span>${f.title}</span>
-              <a href="${f.downloadUrl}" class="download-btn" download>Download</a>
+              ${f.artifacts && f.artifacts.length > 0 ? html`
+                <a href="${f.artifacts[0].url}" class="download-btn" download>Download</a>
+              ` : html`<span>No file</span>`}
             </div>
           </div>
         `)}
       </div>
     `;
-    }
+  }
 }

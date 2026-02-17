@@ -5,10 +5,10 @@ import { Resource } from '../types/index';
 
 @customElement('view-tracker')
 export class ViewTracker extends LitElement {
-    @state() private _projects: Resource[] = [];
-    @state() private _loading = true;
+  @state() private _projects: Resource[] = [];
+  @state() private _loading = true;
 
-    static styles = css`
+  static styles = css`
     :host { display: block; padding: 16px; }
     h2 { font-weight: 300; margin-bottom: 24px; color: #444; }
     .project-item {
@@ -33,34 +33,34 @@ export class ViewTracker extends LitElement {
     }
   `;
 
-    async connectedCallback() {
-        super.connectedCallback();
-        try {
-            const all = await DataService.getResources('user-123');
-            this._projects = all.filter(r => r.type === 'project');
-        } finally {
-            this._loading = false;
-        }
+  async connectedCallback() {
+    super.connectedCallback();
+    try {
+      const all = await DataService.getResources('user-123');
+      this._projects = all.filter(r => r.type === 'project');
+    } finally {
+      this._loading = false;
     }
+  }
 
-    render() {
-        if (this._loading) return html`<p>Loading...</p>`;
+  render() {
+    if (this._loading) return html`<p>Loading...</p>`;
 
-        return html`
+    return html`
       <h2>Project Tracker</h2>
       ${this._projects.length === 0 ? html`<p>No active projects.</p>` : ''}
       ${this._projects.map(p => html`
         <div class="project-item">
           <div class="header">
             <strong>${p.title}</strong>
-            <span>${p.progress}%</span>
+            <span>${p.status.percentage}%</span>
           </div>
-          <div class="status">${p.status}</div>
+          <div class="status">${p.status.label}</div>
           <div class="progress-container">
-            <div class="bar" style="width: ${p.progress}%"></div>
+            <div class="bar" style="width: ${p.status.percentage}%"></div>
           </div>
         </div>
       `)}
     `;
-    }
+  }
 }
