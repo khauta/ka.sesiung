@@ -151,9 +151,12 @@ function syncClientsToServer() {
   
   // POST the JSON to your local Node server (Use Ngrok/Tailscale IP if running locally)
   // Ensure you update YOUR_SERVER_IP or setup a proper subdomain route to reach your local server
+  // The X-Internal-Token header must match the INTERNAL_SECRET set in workspace-otp-server/.env
+  const INTERNAL_SECRET = PropertiesService.getScriptProperties().getProperty('INTERNAL_SECRET') || '';
   const response = UrlFetchApp.fetch("http://YOUR_SERVER_IP:3000/api/internal/sync-clients", {
     method: "post",
     contentType: "application/json",
+    headers: { "X-Internal-Token": INTERNAL_SECRET },
     payload: JSON.stringify(clientsJson),
     muteHttpExceptions: true
   });

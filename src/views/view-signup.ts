@@ -1,14 +1,25 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { router } from '../router/index';
+import { authService, PENDING_PHONE_KEY } from '../services/auth';
 
+/**
+ * view-signup — Account access request screen.
+ *
+ * Ka Sesiung operates a pre-registered client model: accounts are provisioned
+ * by an administrator via the Google Sheet + OTP server sync pipeline.
+ * This screen lets a registered client verify their phone via OTP to gain
+ * first-time access. If their number is not in the allowlist the OTP server
+ * will reject the request with a clear error message.
+ */
 @customElement('view-signup')
 export class ViewSignup extends LitElement {
   @state() private name = '';
   @state() private phone = '';
-  @state() private password = '';
-  @state() private confirmPassword = '';
-  @state() private errors: Record<string, string> = {};
+  @state() private error = '';
+  @state() private loading = false;
+  @state() private nameError = '';
+  @state() private phoneError = '';
 
   static styles = css`
     :host {
@@ -33,6 +44,13 @@ export class ViewSignup extends LitElement {
       margin-top: 0;
       color: #333;
       text-align: center;
+    }
+    .info {
+      font-size: 0.85rem;
+      color: #888;
+      text-align: center;
+      margin-bottom: 24px;
+      line-height: 1.5;
     }
     .input-group {
       display: flex;
@@ -98,13 +116,8 @@ export class ViewSignup extends LitElement {
       transition: background 0.3s;
       margin-top: 8px;
     }
-    button:hover {
-      background: #3700b3;
-    }
-    button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
+    button:hover { background: #3700b3; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
     .footer {
       margin-top: 24px;
       font-size: 0.9rem;
@@ -117,64 +130,54 @@ export class ViewSignup extends LitElement {
       font-weight: 500;
       cursor: pointer;
     }
-    .footer a:hover {
-      text-decoration: underline;
-    }
+    .footer a:hover { text-decoration: underline; }
   `;
+
+  private handleNameInput(e: Event) {
+    this.name = (e.target as HTMLInputElement).value;
+    this.nameError = this.name.length > 0 && this.name.length < 2
+      ? 'Name must be at least 2 characters.'
+      : '';
+    this.error = '';
+  }
 
   private handlePhoneInput(e: Event) {
     const target = e.target as HTMLInputElement;
-    const val = target.value.replace(/\\D/g, '');
+    const val = target.value.replace(/\D/g, '');
     if (val.length <= 8) {
       this.phone = val;
       target.value = val;
     } else {
       target.value = this.phone;
     }
-    this.validate();
-  }
-
-  private handleInput(field: 'name' | 'password' | 'confirmPassword') {
-    return (e: Event) => {
-      this[field] = (e.target as HTMLInputElement).value;
-      this.validate();
-    };
-  }
-
-  private validate() {
-    const newErrors: Record<string, string> = {};
-    
-    if (this.name && this.name.length < 2) newErrors.name = 'Name must be at least 2 characters.';
-    
-    if (this.phone && this.phone.length !== 8) newErrors.phone = 'Phone number must be exactly 8 digits.';
-    
-    if (this.password) {
-      if (this.password.length < 8) newErrors.password = 'Password must be at least 8 characters.';
-      else if (!/\\d/.test(this.password)) newErrors.password = 'Password must contain a number.';
-      else if (!/[A-Z]/.test(this.password)) newErrors.password = 'Password must contain an uppercase letter.';
-    }
-
-    if (this.confirmPassword && this.password !== this.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match.';
-    }
-
-    this.errors = newErrors;
+    this.phoneError = this.phone.length > 0 && this.phone.length !== 8
+      ? 'Phone number must be exactly 8 digits.'
+      : '';
+    this.error = '';
   }
 
   private get isFormValid() {
-    return this.name.length >= 2 &&
-           this.phone.length === 8 &&
-           this.password.length >= 8 &&
-           /\\d/.test(this.password) &&
-           /[A-Z]/.test(this.password) &&
-           this.password === this.confirmPassword;
+    return this.name.length >= 2 && this.phone.length === 8;
   }
 
-  private handleSubmit(e: Event) {
+  private async handleSubmit(e: Event) {
     e.preventDefault();
-    if (this.isFormValid) {
-      // Setup successful, move to OTP phone verification
+    if (!this.isFormValid) return;
+
+    this.loading = true;
+    this.error = '';
+
+    const phoneNumber = '+266' + this.phone;
+
+    try {
+      await authService.requestOtp(phoneNumber);
+      sessionStorage.setItem(PENDING_PHONE_KEY, phoneNumber);
       router.navigate('app://otp');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to send OTP. Try again.';
+      this.error = msg;
+    } finally {
+      this.loading = false;
     }
   }
 
@@ -186,8 +189,11 @@ export class ViewSignup extends LitElement {
   render() {
     return html`
       <div class="card">
-        <h2>Create Account</h2>
-        <p style="color: #666; margin-bottom: 24px; text-align: center;">Join Ka Sesiung today!</p>
+        <h2>Access Your Workspace</h2>
+        <p class="info">
+          Accounts are provisioned by your workspace administrator.<br>
+          If your number is registered, enter it below to receive your access code.
+        </p>
         
         <form @submit="${this.handleSubmit}">
           <div class="input-group">
@@ -197,9 +203,10 @@ export class ViewSignup extends LitElement {
               type="text" 
               placeholder="John Doe" 
               .value="${this.name}" 
-              @input="${this.handleInput('name')}" 
+              @input="${this.handleNameInput}"
+              ?disabled="${this.loading}"
             >
-            <div class="error">${this.errors.name || ''}</div>
+            <div class="error">${this.nameError}</div>
           </div>
 
           <div class="input-group">
@@ -211,45 +218,25 @@ export class ViewSignup extends LitElement {
                 type="tel" 
                 placeholder="51234567" 
                 .value="${this.phone}" 
-                @input="${this.handlePhoneInput}" 
+                @input="${this.handlePhoneInput}"
+                ?disabled="${this.loading}"
               >
             </div>
-            <div class="error">${this.errors.phone || ''}</div>
-          </div>
-          
-          <div class="input-group">
-            <label for="password">Password</label>
-            <input 
-              id="password" 
-              type="password" 
-              placeholder="••••••••" 
-              .value="${this.password}" 
-              @input="${this.handleInput('password')}" 
-            >
-            <div class="error">${this.errors.password || ''}</div>
+            <div class="error">${this.phoneError}</div>
           </div>
 
-          <div class="input-group">
-            <label for="confirm">Confirm Password</label>
-            <input 
-              id="confirm" 
-              type="password" 
-              placeholder="••••••••" 
-              .value="${this.confirmPassword}" 
-              @input="${this.handleInput('confirmPassword')}" 
-            >
-            <div class="error">${this.errors.confirmPassword || ''}</div>
-          </div>
+          <div class="error" style="margin-bottom: 8px;">${this.error}</div>
           
-          <button type="submit" ?disabled="${!this.isFormValid}">
-            Sign Up
+          <button type="submit" ?disabled="${!this.isFormValid || this.loading}">
+            ${this.loading ? 'Sending Code...' : 'Send Access Code'}
           </button>
         </form>
 
         <div class="footer">
-          Already have an account? <a @click="${this.navToLogin}">Log In</a>
+          Already have access? <a @click="${this.navToLogin}">Log In</a>
         </div>
       </div>
     `;
   }
 }
+
