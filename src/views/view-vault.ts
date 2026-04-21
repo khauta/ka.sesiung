@@ -23,37 +23,30 @@ export class ViewVault extends LitElement {
       transition: all 0.2s;
     }
     .download-btn:hover { background: #6200ea; color: white; }
+    .empty-state { text-align: center; padding: 40px; color: #777; }
   `;
 
-  // Fugu API: Attempt to use the native File System Access API for a better "Save" experience
-  private async handleDownload(artifact: Artifact) {
-    if ('showSaveFilePicker' in window) {
-      try {
-        // Pseudo-code for fetching the blob and saving via Fugu
-        // In a real app, you would fetch(artifact.url) -> blob
-        // For now, we simulate with a dummy blob or alert
-        // const response = await fetch(artifact.url);
-        // const blob = await response.blob();
-
-        const handle = await (window as any).showSaveFilePicker({
-          suggestedName: artifact.name,
-        });
-        const writable = await handle.createWritable();
-        // await writable.write(blob); 
-        await writable.write("Dummy content"); // Mock content for this demo
-        await writable.close();
-      } catch (err) {
-        console.warn('Save cancelled or failed, falling back to standard download target="_blank"', err);
-        window.open(artifact.url, '_blank');
-      }
-    } else {
-      // Fallback for Safari / older mobile browsers
+  private handleDownload(artifact: Artifact) {
+    if (artifact.url) {
       window.open(artifact.url, '_blank');
+    } else {
+      console.warn('No URL found for this artifact', artifact);
     }
   }
 
   render() {
-    const vaultItems = this.items.filter(i => i.category === 'vault' || i.artifacts.length > 0);
+    const vaultItems = this.items.filter(i => i.category === 'vault' || (i.artifacts && i.artifacts.length > 0));
+
+    if (vaultItems.length === 0) {
+      return html`
+        <section aria-labelledby="vault-heading">
+          <h2 id="vault-heading">My Secure Vault</h2>
+          <div class="empty-state">
+            <p>You don't have any final documents yet.</p>
+          </div>
+        </section>
+      `;
+    }
 
     return html`
       <section aria-labelledby="vault-heading">
@@ -69,19 +62,19 @@ export class ViewVault extends LitElement {
             </tr>
           </thead>
           <tbody>
-            ${vaultItems.flatMap(item => item.artifacts.map(artifact => html`
+            ${vaultItems.flatMap(item => (item.artifacts || []).map(artifact => html`
               <tr>
                 <td>
-                  <strong>${artifact.name}</strong><br/>
-                  <small style="color: gray;">From: ${item.title}</small>
+                  <strong>${artifact.name || 'Document'}</strong><br/>
+                  <small style="color: gray;">From: ${item.title || 'Unknown Project'}</small>
                 </td>
-                <td>${new Date(item.lastModified).toLocaleDateString()}</td>
+                <td>${item.updatedAt ? new Date(item.updatedAt).toLocaleDateString() : 'N/A'}</td>
                 <td>
                   <button 
                     class="download-btn"
                     @click="${() => this.handleDownload(artifact)}"
-                    aria-label="Download ${artifact.name}">
-                    Download
+                    aria-label="View ${artifact.name || 'Document'}">
+                    View Document
                   </button>
                 </td>
               </tr>

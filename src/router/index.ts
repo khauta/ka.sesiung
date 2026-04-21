@@ -1,4 +1,4 @@
-export type Route = 'hub' | 'tracker' | 'vault';
+export type Route = 'hub' | 'tracker' | 'vault' | 'login' | 'otp' | 'signup';
 
 export interface RouteConfig {
     pattern: RegExp;
@@ -11,11 +11,17 @@ export class AppRouter extends EventTarget {
         { pattern: /^app:\/\/hub/, view: 'hub' },
         { pattern: /^app:\/\/tracker/, view: 'tracker' },
         { pattern: /^app:\/\/vault/, view: 'vault' },
+        { pattern: /^app:\/\/login/, view: 'login' },
+        { pattern: /^app:\/\/otp/, view: 'otp' },
+        { pattern: /^app:\/\/signup/, view: 'signup' },
         // Fallbacks for standard web access
         { pattern: /^\/hub/, view: 'hub' },
         { pattern: /^\/tracker/, view: 'tracker' },
         { pattern: /^\/vault/, view: 'vault' },
-        { pattern: /^\/$/, view: 'hub' }
+        { pattern: /^\/login/, view: 'login' },
+        { pattern: /^\/otp/, view: 'otp' },
+        { pattern: /^\/signup/, view: 'signup' },
+        { pattern: /^\/$/, view: 'login' }
     ];
 
     private constructor() {
@@ -47,7 +53,7 @@ export class AppRouter extends EventTarget {
     resolveRoute() {
         const path = window.location.pathname;
         const matched = this.routes.find(r => r.pattern.test(path));
-        const view = matched ? matched.view : 'hub';
+        const view = matched ? matched.view : 'login';
 
         this.dispatchEvent(new CustomEvent('route-changed', {
             detail: { view }

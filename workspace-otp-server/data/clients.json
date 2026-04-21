@@ -1,0 +1,12 @@
+{
+  "+1234567890": {
+    "clientId": "CL_001",
+    "name": "Acme Corp",
+    "status": "active"
+  },
+  "+0987654321": {
+    "clientId": "CL_002",
+    "name": "Wayne Enterprises",
+    "status": "inactive"
+  }
+}

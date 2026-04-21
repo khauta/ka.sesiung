@@ -10,7 +10,8 @@ import './splash-screen';
 const icons = {
   hub: html`<span class="material-icons notranslate">dashboard</span>`,
   tracker: html`<span class="material-icons notranslate">timeline</span>`,
-  vault: html`<span class="material-icons notranslate">lock</span>`
+  vault: html`<span class="material-icons notranslate">lock</span>`,
+  auth: html`<span class="material-icons notranslate">account_circle</span>`
 };
 
 @customElement('app-shell')
@@ -166,6 +167,15 @@ export class AppShell extends LitElement {
   }
 
   render() {
+    const isAuthRoute = ['login', 'otp', 'signup'].includes(this._currentView);
+
+    if (isAuthRoute) {
+      return html`
+        <splash-screen ?hidden=${!this._booting}></splash-screen>
+        <core-viewport></core-viewport>
+      `;
+    }
+
     return html`
       <splash-screen ?hidden=${!this._booting}></splash-screen>
 

@@ -20,6 +20,7 @@ export interface ResourceItem {
     isPremium: boolean;
     deliveryDate?: string; // ISO String
     lastModified: string; // ISO String
+    updatedAt?: string; // ISO String (from Firestore sync)
     artifacts: Artifact[];
 }
 

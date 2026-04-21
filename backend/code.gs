@@ -1,48 +1,84 @@
 /**
- * Google Apps Script for "Suspense Backend"
+ * Google Apps Script for "Serverless Spreadsheet"
  * 
  * Instructions:
  * 1. Open your Google Sheet.
  * 2. Go to Extensions > Apps Script.
  * 3. Paste this code into Code.gs.
- * 4. Add the 'Firestore' library if needed, or use REST API as shown below.
- * 5. Set up triggers: Edit -> Current project's triggers -> Add Trigger -> syncRowToFirestore -> onEdit (or Time-driven).
+ * 4. Setup triggers: Edit -> Current project's triggers -> Add Trigger -> syncRowToFirestore -> onEdit
  */
 
-function syncRowToFirestore(e) {
-  // If triggered by onEdit, 'e' contains event object. 
-  // For manual testing or time-driven, we might scan modified rows.
-  // Here we assume row is passed or we get active range.
-  
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Master_Log");
-  if (!sheet) return;
+const PROJECT_ID = "superstore-b3500"; 
+// Replace with the actual Template File ID from Google Drive
+const TEMPLATE_DOC_ID = "YOUR_TEMPLATE_DOC_ID_HERE";
 
-  const range = e ? e.range : sheet.getActiveRange();
-  if (!range) return;
-  
-  const rowIdx = range.getRow();
+function onEdit(e) {
+  if (!e) return;
+  const sheet = e.range.getSheet();
+  if (sheet.getName() !== "Master_Log") return;
+
+  const rowIdx = e.range.getRow();
   if (rowIdx < 2) return; // Skip header
-  
-  const row = sheet.getRange(rowIdx, 1, 1, 8).getValues()[0];
-  
-  // 1. Parse Sheet Data
-  // Column A: ClientID (Email or UUID)
-  const email = row[0]; 
-  if (!email) return;
+
+  const rowData = sheet.getRange(rowIdx, 1, 1, 9).getValues()[0];
+  const generateDocChecked = rowData[7]; // Column H (0-indexed 7)
+  let updatedUrl = rowData[8];           // Column I (0-indexed 8)
+
+  if (generateDocChecked === true) {
+    // Read ClientPhone (A=0), Title (D=3), Amount (G=6)
+    const clientPhone = rowData[0];
+    const title = rowData[3];
+    const amount = rowData[6];
+
+    if (clientPhone && title) {
+      // 3. Copy Google Doc Template
+      const newFile = DriveApp.getFileById(TEMPLATE_DOC_ID).makeCopy(`${title} - ${clientPhone}`);
+      const newDocId = newFile.getId();
+      
+      // 4. Replace text placeholders
+      const newDoc = DocumentApp.openById(newDocId);
+      const body = newDoc.getBody();
+      body.replaceText("{{TITLE}}", title || "");
+      body.replaceText("{{AMOUNT}}", amount || "");
+      newDoc.saveAndClose();
+
+      // 5. Grant View access
+      DriveApp.getFileById(newDocId).setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      
+      // 6. Write URL into Column I and unset checkbox in Column H
+      updatedUrl = newDoc.getUrl();
+      sheet.getRange(rowIdx, 9).setValue(updatedUrl);
+      sheet.getRange(rowIdx, 8).setValue(false);
+      
+      // Update rowData for the sync
+      rowData[8] = updatedUrl;
+    }
+  }
+
+  // 7. Sync to Firestore in either case
+  syncRowToFirestore(rowData);
+}
+
+function syncRowToFirestore(row) {
+  // Column A: ClientPhone
+  const clientPhone = row[0]; 
+  if (!clientPhone) return;
 
   const data = {
-    resourceId: row[1],
-    category: row[2], // hub, tracker, vault
-    title: row[3],
-    status: row[4], // integer progress or string
-    url: row[5],
-    meta:   isValidJSON(row[6]) ? JSON.parse(row[6]) : {},
+    resourceId: row[1], // Column B
+    category: row[2],   // Column C
+    title: row[3],      // Column D
+    label: row[4],      // Column E
+    percentage: parseInt(row[5], 10) || 0, // Column F
+    amount: row[6],     // Column G
+    url: row[8],        // Column I
     updatedAt: new Date().toISOString()
   };
 
-  // 2. Construct Firestore JSON (REST API format)
-  // Note: Firestore REST API requires specific format for types
-  const firestoreUrl = "https://firestore.googleapis.com/v1/projects/[YOUR_PROJECT_ID]/databases/(default)/documents/users/";
+  if (!data.resourceId) return;
+
+  // Firestore REST API Format
+  const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/users/`;
   
   const payload = {
     fields: {
@@ -51,36 +87,37 @@ function syncRowToFirestore(e) {
       status: { 
         mapValue: {
           fields: {
-            state: { stringValue: "active" }, // Default, logic to derive this from sheet needed
-            percentage: { integerValue: (typeof data.status === 'number' ? data.status : 0) },
-            label: { stringValue: String(data.status) }
+            state: { stringValue: "active" }, 
+            percentage: { integerValue: data.percentage },
+            label: { stringValue: String(data.label || "") }
           }
         }
       },
       artifacts: {
         arrayValue: {
-          values: [
-            {
-              mapValue: {
-                fields: {
-                  url: { stringValue: data.url || "" },
-                  type: { stringValue: "link" }, // Default
-                  name: { stringValue: "Resource Link" }
-                }
-              }
-            }
-          ]
+          values: []
         }
       },
       updatedAt: { timestampValue: data.updatedAt }
     }
   };
 
-  // 3. Push to Firestore (Upsert)
-  // Path: users/{email}/resources/{resourceId}
-  const endpoint = firestoreUrl + email + "/resources/" + data.resourceId;
+  if (data.url) {
+    payload.fields.artifacts.arrayValue.values.push({
+      mapValue: {
+        fields: {
+          url: { stringValue: data.url },
+          type: { stringValue: "link" },
+          name: { stringValue: "Generated Document" }
+        }
+      }
+    });
+  }
+
+  // Path: users/{clientPhone}/resources/{resourceId}
+  const endpoint = firestoreUrl + encodeURIComponent(clientPhone) + "/resources/" + encodeURIComponent(data.resourceId);
   const options = {
-    method: "patch", // PATCH updates existing docs or creates new ones
+    method: "patch",
     contentType: "application/json",
     payload: JSON.stringify(payload),
     muteHttpExceptions: true
@@ -90,11 +127,48 @@ function syncRowToFirestore(e) {
   Logger.log(response.getContentText());
 }
 
-function isValidJSON(str) {
-  try {
-    JSON.parse(str);
-    return true;
-  } catch (e) {
-    return false;
+// ============================================
+// OTP Server Integration
+// ============================================
+
+function syncClientsToServer() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const data = sheet.getDataRange().getValues(); // Assumes Col A: Phone, B: ID, C: Name, D: Status
+  
+  let clientsJson = {};
+  for (let i = 1; i < data.length; i++) { // Start at 1 to skip headers
+    let phone = String(data[i][0]).trim();
+    if (phone) {
+      if (!phone.startsWith('+')) phone = '+' + phone; // Enforce strict E.164
+      
+      clientsJson[phone] = {
+        clientId: String(data[i][1]),
+        name: String(data[i][2]),
+        status: String(data[i][3]).toLowerCase()
+      };
+    }
   }
+  
+  // POST the JSON to your local Node server (Use Ngrok/Tailscale IP if running locally)
+  // Ensure you update YOUR_SERVER_IP or setup a proper subdomain route to reach your local server
+  const response = UrlFetchApp.fetch("http://YOUR_SERVER_IP:3000/api/internal/sync-clients", {
+    method: "post",
+    contentType: "application/json",
+    payload: JSON.stringify(clientsJson),
+    muteHttpExceptions: true
+  });
+  
+  if(response.getResponseCode() === 200) {
+    SpreadsheetApp.getUi().alert("✅ Successfully synced to OTP Server!");
+  } else {
+    SpreadsheetApp.getUi().alert("❌ Failed to sync: " + response.getContentText());
+  }
+}
+
+// Add a button to your Sheets UI
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu('Workspace Admin')
+    .addItem('Push Sync to OTP Server', 'syncClientsToServer')
+    .addToUi();
 }
