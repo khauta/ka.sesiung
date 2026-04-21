@@ -1,8 +1,7 @@
 import { LitElement, html, css } from 'lit';
-import { customElement, state, query } from 'lit/decorators.js';
+import { customElement, state } from 'lit/decorators.js';
 import { router } from '../router/index';
-import { auth } from '../services/firebase';
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { authService, PENDING_PHONE_KEY } from '../services/auth';
 
 @customElement('view-login')
 export class ViewLogin extends LitElement {
@@ -92,8 +91,6 @@ export class ViewLogin extends LitElement {
     .footer a:hover { text-decoration: underline; }
   `;
 
-  // firstUpdated removed completely.
-
   private handleInput(e: Event) {
     const target = e.target as HTMLInputElement;
     const val = target.value.replace(/\D/g, '');
@@ -112,47 +109,21 @@ export class ViewLogin extends LitElement {
       this.error = 'Phone number must be exactly 8 digits.';
       return;
     }
-    
+
     this.loading = true;
     this.error = '';
-    
+
     const phoneNumber = '+266' + this.phone;
-    
+
     try {
-      // Disable reCAPTCHA app verification (auto-resolves for test numbers)
-      auth.settings.appVerificationDisabledForTesting = true;
-
-      // Create global reCAPTCHA if it doesn't exist yet (keeps your component clean!)
-      if (!(window as any).globalRecaptchaVerifier) {
-        const div = document.createElement('div');
-        div.id = 'firebase-recaptcha-badge';
-        document.body.appendChild(div); // Attach directly to the web page body, immune to UI updates
-        
-        const style = document.createElement('style');
-        style.innerHTML = '.grecaptcha-badge { visibility: hidden !important; }'; // Hide the badge visually
-        document.head.appendChild(style);
-
-        (window as any).globalRecaptchaVerifier = new RecaptchaVerifier(auth, div, {
-          'size': 'invisible'
-        });
-      }
-
-      const appVerifier = (window as any).globalRecaptchaVerifier;
-      const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-      (window as any).confirmationResult = confirmationResult;
+      await authService.requestOtp(phoneNumber);
+      // Persist the phone in sessionStorage so view-otp can read it without
+      // any global window property exposure.
+      sessionStorage.setItem(PENDING_PHONE_KEY, phoneNumber);
       router.navigate('app://otp');
-    } catch (err: any) {
-      console.error(err);
-      this.error = err.message || 'Failed to send OTP. Try again.';
-      
-      // Reset the verifier safely
-      const appVerifier = (window as any).globalRecaptchaVerifier;
-      if (appVerifier) {
-        try {
-          const widgetId = await appVerifier.render();
-          (window as any).grecaptcha.reset(widgetId);
-        } catch(e){}
-      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to send OTP. Try again.';
+      this.error = msg;
     } finally {
       this.loading = false;
     }
@@ -199,3 +170,4 @@ export class ViewLogin extends LitElement {
     `;
   }
 }
+

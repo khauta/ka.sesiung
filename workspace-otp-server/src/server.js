@@ -4,11 +4,20 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 
 const guardCheck = require('./middleware/guardCheck');
+const internalGuard = require('./middleware/internalGuard');
 const authController = require('./controllers/auth');
 const internalController = require('./controllers/internal');
 
 const app = express();
-app.use(cors());
+
+// Allow only the configured frontend origin (or all origins in development).
+// Set CORS_ORIGIN in .env to the deployed frontend URL, e.g. https://ka-sesiung.web.app
+const corsOptions = {
+    origin: process.env.CORS_ORIGIN || (process.env.NODE_ENV === 'development' ? '*' : false),
+    methods: ['POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'X-Internal-Token'],
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Hardware protection: Rate limit to prevent spamming the physical router SIM cards
@@ -27,8 +36,8 @@ app.post('/api/auth/request-otp', otpLimiter, guardCheck, authController.request
 // 2. Verify OTP (Guarded by clients.json to ensure they weren't removed mid-session)
 app.post('/api/auth/verify-otp', guardCheck, authController.verifyOtp);
 
-// 3. Internal Sync (Google Sheets to local clients.json)
-app.post('/api/internal/sync-clients', internalController.syncClients);
+// 3. Internal Sync (Google Sheets → local clients.json) — requires shared secret header
+app.post('/api/internal/sync-clients', internalGuard, internalController.syncClients);
 
 // --- START SERVER ---
 const PORT = process.env.PORT || 3000;

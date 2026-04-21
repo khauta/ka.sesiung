@@ -1,6 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { router } from '../router/index';
+import { authService, PENDING_PHONE_KEY } from '../services/auth';
 
 @customElement('view-otp')
 export class ViewOtp extends LitElement {
@@ -10,6 +11,8 @@ export class ViewOtp extends LitElement {
   @state() private resendCountdown = 30;
 
   private timer?: number;
+  /** Phone number carried from the login/signup screen via sessionStorage. */
+  private pendingPhone = '';
 
   static styles = css`
     :host {
@@ -101,12 +104,13 @@ export class ViewOtp extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    this.startTimer();
-    // Validate we actually have a confirmation session
-    if (!(window as any).confirmationResult) {
-      console.warn('No confirmation result found, routing back to login');
+    this.pendingPhone = sessionStorage.getItem(PENDING_PHONE_KEY) ?? '';
+    if (!this.pendingPhone) {
+      console.warn('No pending phone found; routing back to login.');
       router.navigate('app://login');
+      return;
     }
+    this.startTimer();
   }
 
   disconnectedCallback() {
@@ -143,9 +147,7 @@ export class ViewOtp extends LitElement {
       this.error = 'OTP must be 6 digits.';
       return;
     }
-
-    const confResult = (window as any).confirmationResult;
-    if (!confResult) {
+    if (!this.pendingPhone) {
       this.error = 'Session expired. Please try logging in again.';
       return;
     }
@@ -154,28 +156,35 @@ export class ViewOtp extends LitElement {
     this.error = '';
 
     try {
-      await confResult.confirm(this.otp);
-      // Success, clear it out global scope
-      delete (window as any).confirmationResult;
+      await authService.verifyOtp(this.pendingPhone, this.otp);
+      sessionStorage.removeItem(PENDING_PHONE_KEY);
       router.navigate('app://hub');
-    } catch (err: any) {
-      console.error('Invalid OTP', err);
-      this.error = 'Invalid verification code. Please try again.';
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Invalid verification code. Please try again.';
+      this.error = msg;
     } finally {
       this.loading = false;
     }
   }
 
-  private handleResend() {
-    if (this.resendCountdown === 0) {
-      // Logic to resend would go back to login flow or invoke hidden recaptcha again
-      this.error = 'To protect your account, please request a new code from the login page.';
-      setTimeout(() => router.navigate('app://login'), 2000);
+  private async handleResend() {
+    if (this.resendCountdown > 0 || !this.pendingPhone) return;
+    this.loading = true;
+    this.error = '';
+    try {
+      await authService.requestOtp(this.pendingPhone);
+      this.startTimer();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to resend. Please go back to the login page.';
+      this.error = msg;
+    } finally {
+      this.loading = false;
     }
   }
 
   private goBack(e: Event) {
     e.preventDefault();
+    sessionStorage.removeItem(PENDING_PHONE_KEY);
     router.navigate('app://login');
   }
 
@@ -211,12 +220,13 @@ export class ViewOtp extends LitElement {
           <button 
             type="button" 
             @click="${this.handleResend}" 
-            ?disabled="${this.resendCountdown > 0}"
+            ?disabled="${this.resendCountdown > 0 || this.loading}"
           >
-            ${this.resendCountdown > 0 ? 'Resend in ' + this.resendCountdown + 's' : 'Request New Code'}
+            ${this.resendCountdown > 0 ? 'Resend in ' + this.resendCountdown + 's' : 'Resend Code'}
           </button>
         </div>
       </div>
     `;
   }
 }
+

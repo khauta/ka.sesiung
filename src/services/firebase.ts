@@ -1,8 +1,14 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
 import { getFirestore, onSnapshot, collection } from "firebase/firestore";
 
-// Using the config provided by the user in the prompt comment
+/**
+ * Firebase is used exclusively for Firestore realtime data sync.
+ * Authentication is handled by workspace-otp-server (see src/services/auth.ts).
+ *
+ * NOTE: Firestore security rules for the `users` collection must allow reads
+ * from unauthenticated clients OR be updated to validate the workspace JWT via
+ * a Cloud Function / backend proxy once a full server-side integration is in place.
+ */
 const firebaseConfig = {
   apiKey: "AIzaSyCw9bbJGjuL2dgR9qerwnJpE3vJ1lXoqmU",
   authDomain: "superstore-b3500.firebaseapp.com",
@@ -16,28 +22,32 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-export const auth = getAuth(app);
 export const db = getFirestore(app);
 
 /**
- * Subscribes to a user's resources collection in Firestore
- * @param phoneNumber The user's phone number as the document ID
- * @param callback The function to call with the mapped resources array whenever data changes
- * @returns A function to unsubscribe from the listener
+ * Subscribes to a user's resources collection in Firestore.
+ * The document tree is keyed by the client's E.164 phone number
+ * (e.g. `users/+26651234567/resources`).
+ *
+ * @param phoneNumber E.164 phone number — must match the key used by Apps Script
+ * @param callback    Called with the full resources array on every change
+ * @returns           Unsubscribe function — call on component teardown
  */
-export function subscribeToUserResources(phoneNumber: string, callback: (data: any[]) => void) {
+export function subscribeToUserResources(
+  phoneNumber: string,
+  callback: (data: Record<string, unknown>[]) => void
+) {
   const resourcesRef = collection(db, `users/${phoneNumber}/resources`);
-  
-  return onSnapshot(resourcesRef, (snapshot) => {
-    const items = snapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        ...data
-      };
-    });
-    callback(items);
-  }, (error) => {
-    console.error("Error listening to user resources:", error);
-  });
+
+  return onSnapshot(
+    resourcesRef,
+    (snapshot) => {
+      const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      callback(items);
+    },
+    (error) => {
+      console.error('Firestore subscription error:', error);
+    }
+  );
 }
+

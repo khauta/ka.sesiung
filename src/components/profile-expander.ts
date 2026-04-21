@@ -1,10 +1,14 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
+import { router } from '../router/index';
+import { authService, ClientInfo } from '../services/auth';
 
 @customElement('profile-expander')
 export class ProfileExpander extends LitElement {
-    @state() isExpanded = false;
-    @state() userData = { name: 'Client', tier: 'Gold', email: 'client@example.com', avatar: '' };
+    @state() private isExpanded = false;
+    @state() private user: ClientInfo | null = authService.getUser();
+
+    private _authHandler!: (e: Event) => void;
 
     static styles = css`
     :host { display: block; }
@@ -45,7 +49,7 @@ export class ProfileExpander extends LitElement {
         z-index: 100;
     }
     .details.open { 
-        max-height: 200px; 
+        max-height: 260px; 
         opacity: 1; 
         padding: 16px; 
     }
@@ -62,22 +66,70 @@ export class ProfileExpander extends LitElement {
         margin-bottom: 8px;
     }
     small { display: block; margin-top: 8px; color: #999; font-size: 0.75rem; }
+    .sign-out-btn {
+        display: block;
+        width: 100%;
+        margin-top: 12px;
+        padding: 8px 0;
+        background: transparent;
+        border: 1px solid #d32f2f;
+        border-radius: 6px;
+        color: #d32f2f;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+    }
+    .sign-out-btn:hover {
+        background: #d32f2f;
+        color: white;
+    }
   `;
 
+    connectedCallback() {
+        super.connectedCallback();
+        this._authHandler = (e: Event) => {
+            this.user = (e as CustomEvent<{ user: ClientInfo | null }>).detail.user;
+            this.isExpanded = false;
+        };
+        authService.addEventListener('auth-changed', this._authHandler);
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        authService.removeEventListener('auth-changed', this._authHandler);
+    }
+
+    private _handleSignOut() {
+        this.isExpanded = false;
+        authService.signOut();
+        router.navigate('app://login');
+    }
+
+    private _avatarUrl(name: string) {
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6200ee&color=fff`;
+    }
+
     render() {
+        const name = this.user?.name ?? 'Client';
+        const clientId = this.user?.clientId ?? '—';
+        const phone = this.user?.phone ?? '';
+
         return html`
       <div class="profile-container">
-        <div class="avatar" @click="${() => this.isExpanded = !this.isExpanded}">
-           <img src="${this.userData.avatar || 'https://ui-avatars.com/api/?name=Client&background=random'}" alt="Profile" />
+        <div class="avatar" @click="${() => this.isExpanded = !this.isExpanded}" role="button" aria-label="Profile menu">
+           <img src="${this._avatarUrl(name)}" alt="Profile" />
         </div>
 
         <div class="details ${this.isExpanded ? 'open' : ''}">
-           <h3>${this.userData.name}</h3>
-           <span class="badge">${this.userData.tier}</span>
-           <p>${this.userData.email}</p>
-           <small>ID: 883-221</small> 
+           <h3>${name}</h3>
+           <span class="badge">Workspace Client</span>
+           <p>${phone}</p>
+           <small>ID: ${clientId}</small>
+           <button class="sign-out-btn" @click="${this._handleSignOut}">Sign Out</button>
         </div>
       </div>
     `;
     }
 }
+
