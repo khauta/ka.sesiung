@@ -36,7 +36,14 @@ const verifyOtp = (req, res) => {
 
     // Sign JWT Token valid for 8 hours (standard workspace shift)
     const token = jwt.sign(
-        { phone, clientId: clientInfo.clientId, name: clientInfo.name }, 
+        { 
+            phone, 
+            clientId: clientInfo.clientId, 
+            name: clientInfo.name,
+            role: clientInfo.role,
+            access: clientInfo.access,
+            subscription: clientInfo.subscription
+        }, 
         process.env.JWT_SECRET, 
         { expiresIn: '8h' }
     );

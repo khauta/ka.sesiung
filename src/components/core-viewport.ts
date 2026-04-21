@@ -36,7 +36,13 @@ export class CoreViewport extends LitElement {
     super.connectedCallback();
 
     router.addEventListener('route-changed', (e: Event) => {
-      this._currentView = (e as CustomEvent<{ view: string }>).detail.view;
+      const view = (e as CustomEvent<{ view: string }>).detail.view;
+      if (authService.isAuthenticated() && AUTH_ROUTES.includes(view)) {
+        // Prevent authenticated users from seeing auth routes.
+        router.navigate('app://hub');
+        return;
+      }
+      this._currentView = view;
       this.requestUpdate();
     });
 
@@ -71,6 +77,11 @@ export class CoreViewport extends LitElement {
         this._loading = false;
         this.requestUpdate();
       });
+
+      // Redirect away from auth routes if already signed in
+      if (AUTH_ROUTES.includes(this._currentView)) {
+        router.navigate('app://hub');
+      }
     } else {
       // Signed out — clear data and redirect if on a protected route.
       this._resources = [];

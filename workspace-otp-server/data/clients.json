@@ -1,12 +1,26 @@
 {
-  "+1234567890": {
+  "+26657284264": {
     "clientId": "CL_001",
     "name": "Acme Corp",
-    "status": "active"
+    "status": "active",
+    "role": "admin",
+    "access": "full",
+    "subscription": "pro"
   },
-  "+0987654321": {
+  "+26657654321": {
     "clientId": "CL_002",
     "name": "Wayne Enterprises",
-    "status": "inactive"
+    "status": "inactive",
+    "role": "user",
+    "access": "standard",
+    "subscription": "basic"
+  },
+  "+26657654322": {
+    "clientId": "CL_002",
+    "name": "Wayne Enterprises",
+    "status": "active",
+    "role": "user",
+    "access": "standard",
+    "subscription": "basic"
   }
 }

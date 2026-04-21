@@ -14,6 +14,9 @@ export interface ClientInfo {
   phone: string;
   clientId: string;
   name: string;
+  role?: string;
+  access?: string;
+  subscription?: string;
 }
 
 const TOKEN_KEY = 'ks_auth_token';
