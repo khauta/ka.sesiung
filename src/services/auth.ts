@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * AuthService — workspace-otp-server JWT auth client
  *
@@ -21,8 +23,8 @@ const USER_KEY = 'ks_auth_user';
  *  between screens without exposing it in a global window property. */
 export const PENDING_PHONE_KEY = 'ks_pending_phone';
 
-const OTP_SERVER_URL =
-  (import.meta as any).env?.VITE_OTP_SERVER_URL ?? 'http://localhost:3000';
+const OTP_SERVER_URL: string =
+  import.meta.env.VITE_OTP_SERVER_URL ?? 'http://localhost:3000';
 
 class AuthService extends EventTarget {
   private _token: string | null = null;
