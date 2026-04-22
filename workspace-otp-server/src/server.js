@@ -68,4 +68,8 @@ app.listen(PORT, () => {
     console.log(`🚀 Zero-DB OTP Workspace Auth Server running on port ${PORT}`);
     console.log(`🛡️  Hardware Mode: ${process.env.NODE_ENV === 'development' ? 'Mock (Console Logs)' : 'Active (Huawei)'}`);
     console.log(`=================================================\n`);
+    
+    // Boot up the WhatsApp OTP delivery bot non-blockingly
+    const whatsappOtp = require('./services/whatsappOtp');
+    whatsappOtp.initialize();
 });

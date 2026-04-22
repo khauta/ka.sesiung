@@ -5,7 +5,8 @@
     "status": "active",
     "role": "admin",
     "access": "full",
-    "subscription": "pro"
+    "subscription": "pro",
+    "subscribed_to_whatsapp_otp": true
   },
   "+26657654321": {
     "clientId": "CL_002",
@@ -13,7 +14,8 @@
     "status": "inactive",
     "role": "user",
     "access": "standard",
-    "subscription": "basic"
+    "subscription": "basic",
+    "subscribed_to_whatsapp_otp": false
   },
   "+26657654322": {
     "clientId": "CL_002",
@@ -21,6 +23,7 @@
     "status": "active",
     "role": "user",
     "access": "standard",
-    "subscription": "basic"
+    "subscription": "basic",
+    "subscribed_to_whatsapp_otp": false
   }
 }

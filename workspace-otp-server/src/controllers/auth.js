@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const otpService = require('../services/otp');
 const hardwareSms = require('../services/hardwareSms');
+const whatsappOtp = require('../services/whatsappOtp');
 
 const requestOtp = async (req, res) => {
     const { phone } = req.body;
@@ -8,12 +9,17 @@ const requestOtp = async (req, res) => {
     try {
         const otp = otpService.generateAndCacheOTP(phone);
         const message = `Your workspace login OTP is: ${otp}. Valid for 5 mins.`;
+        const clientInfo = req.clientInfo;
 
-        // Send via Hardware SMS
-        await hardwareSms.sendSMS(phone, message);
-
-        // DO NOT return the OTP in the response for security
-        res.status(200).json({ message: "OTP generated and passed to SMS Gateway." });
+        if (clientInfo && clientInfo.subscribed_to_whatsapp_otp && whatsappOtp.isReady()) {
+            // Send via WhatsApp Bot
+            await whatsappOtp.sendOtp(phone, otp);
+            res.status(200).json({ message: "OTP generated and passed to WhatsApp Gateway." });
+        } else {
+            // Fallback: Send via Hardware SMS
+            await hardwareSms.sendSMS(phone, message);
+            res.status(200).json({ message: "OTP generated and passed to SMS Gateway." });
+        }
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Failed to send OTP via SMS gateway." });
