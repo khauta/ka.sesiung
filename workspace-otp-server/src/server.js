@@ -16,14 +16,22 @@ if (process.env.NODE_ENV === 'production' && !process.env.CORS_ORIGIN) {
 
 const app = express();
 
-// Allow only the configured frontend origin (or all origins in development).
-// Set CORS_ORIGIN in .env to the deployed frontend URL, e.g. https://ka-sesiung.web.app
 const corsOptions = {
-    origin: process.env.CORS_ORIGIN || '*',
-    methods: ['POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'X-Internal-Token'],
+    origin: function (origin, callback) {
+        // Allow absolutely any origin to pass through for now to rule out CORS issues
+        callback(null, true);
+    },
+    methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Internal-Token', 'Accept'],
+    credentials: true
 };
 app.use(cors(corsOptions));
+
+// Simple logger to see what's hitting the server locally
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} from ${req.headers.origin || 'unknown origin'}`);
+    next();
+});
 app.use(express.json());
 
 // Hardware protection: Rate limit to prevent spamming the physical router SIM cards
