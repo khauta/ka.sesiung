@@ -5,12 +5,15 @@
  * 1. Open your Google Sheet.
  * 2. Go to Extensions > Apps Script.
  * 3. Paste this code into Code.gs.
- * 4. Setup triggers: Edit -> Current project's triggers -> Add Trigger -> syncRowToFirestore -> onEdit
+ * 4. Setup triggers: Edit -> Current project's triggers -> Add Trigger 
+ *    - Choose which function to run: onEdit
+ *    - Select event source: From spreadsheet
+ *    - Select event type: On edit
  */
 
 const PROJECT_ID = "superstore-b3500"; 
 // Replace with the actual Template File ID from Google Drive
-const TEMPLATE_DOC_ID = "YOUR_TEMPLATE_DOC_ID_HERE";
+const TEMPLATE_DOC_ID = "1jK00Jw_FOtj8x7A2VwxnZSPLoR9g4tL4piY4npVLPHw";
 
 function onEdit(e) {
   if (!e) return;
