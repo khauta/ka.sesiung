@@ -1,29 +1,24 @@
 /// <reference types="vite/client" />
 
-/**
- * AuthService — workspace-otp-server JWT auth client
- *
- * Replaces Firebase phone auth. All auth state lives here; components
- * subscribe to 'auth-changed' events instead of onAuthStateChanged.
- *
- * Session is persisted in localStorage so page reloads keep the user
- * signed in until the 8-hour JWT expires or they sign out explicitly.
- */
+import type { SubscriptionStatus, UserRole } from '../types/index';
 
 export interface ClientInfo {
   phone: string;
+  phone_1?: string;
+  phone_2?: string;
   clientId: string;
   name: string;
-  role?: string;
+  email?: string;
+  role?: UserRole;
   access?: string;
   subscription?: string;
+  subscriptionStatus?: SubscriptionStatus;
+  planId?: string;
 }
 
 const TOKEN_KEY = 'ks_auth_token';
 const USER_KEY = 'ks_auth_user';
 
-/** Key used by view-login / view-otp / view-signup to pass the phone
- *  between screens without exposing it in a global window property. */
 export const PENDING_PHONE_KEY = 'ks_pending_phone';
 
 const OTP_SERVER_URL: string =
@@ -41,13 +36,10 @@ class AuthService extends EventTarget {
       this._token = token;
       this._user = JSON.parse(user) as ClientInfo;
     } else {
-      // Clear any stale data
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
     }
   }
-
-  // ── Public API ──────────────────────────────────────────────────────────
 
   isAuthenticated(): boolean {
     return this._token !== null && !this._isExpired(this._token);
@@ -61,10 +53,6 @@ class AuthService extends EventTarget {
     return this._user;
   }
 
-  /**
-   * Request an OTP for the given E.164 phone number.
-   * The server delivers it via hardware SMS gateway.
-   */
   async requestOtp(phone: string): Promise<void> {
     const res = await fetch(`${OTP_SERVER_URL}/api/auth/request-otp`, {
       method: 'POST',
@@ -77,19 +65,15 @@ class AuthService extends EventTarget {
     }
   }
 
-  /**
-   * Confirm the OTP received by SMS. On success the JWT is stored and
-   * an 'auth-changed' event is emitted so every subscriber updates.
-   */
   async verifyOtp(phone: string, otp: string): Promise<void> {
     const res = await fetch(`${OTP_SERVER_URL}/api/auth/verify-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone, otp }),
     });
-    const body = await res.json().catch(() => ({})) as Record<string, any>;
+    const body = await res.json().catch(() => ({})) as Record<string, unknown>;
     if (!res.ok) {
-      throw new Error(body['error'] ?? `OTP verification failed (${res.status})`);
+      throw new Error((body['error'] as string | undefined) ?? `OTP verification failed (${res.status})`);
     }
     this._token = body['token'] as string;
     this._user = body['client'] as ClientInfo;
@@ -98,7 +82,6 @@ class AuthService extends EventTarget {
     this._emit();
   }
 
-  /** Clear session and notify all subscribers. */
   signOut(): void {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
@@ -108,12 +91,8 @@ class AuthService extends EventTarget {
     this._emit();
   }
 
-  // ── Private helpers ──────────────────────────────────────────────────────
-
   private _isExpired(token: string): boolean {
     try {
-      // Decode JWT payload without verifying signature (trust comes from HTTPS
-      // transport + server-side signing; client only needs expiry metadata).
       const payload = JSON.parse(atob(token.split('.')[1])) as { exp: number };
       return Date.now() >= payload.exp * 1000;
     } catch {
@@ -125,10 +104,9 @@ class AuthService extends EventTarget {
     this.dispatchEvent(
       new CustomEvent<{ user: ClientInfo | null }>('auth-changed', {
         detail: { user: this._user },
-      })
+      }),
     );
   }
 }
 
-/** Singleton — import this everywhere instead of constructing locally. */
 export const authService = new AuthService();

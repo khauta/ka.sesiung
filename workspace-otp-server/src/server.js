@@ -55,8 +55,8 @@ const syncLimiter = rateLimit({
 // 1. Request OTP (Rate limited + Guarded by clients.json)
 app.post('/api/auth/request-otp', otpLimiter, guardCheck, authController.requestOtp);
 
-// 2. Verify OTP (Guarded by clients.json to ensure they weren't removed mid-session)
-app.post('/api/auth/verify-otp', guardCheck, authController.verifyOtp);
+// 2. Verify OTP (Rate limited + Guarded by clients.json to ensure they weren't removed mid-session)
+app.post('/api/auth/verify-otp', otpLimiter, guardCheck, authController.verifyOtp);
 
 // 3. Internal Sync (Google Sheets → local clients.json) — requires shared secret header
 app.post('/api/internal/sync-clients', syncLimiter, internalGuard, internalController.syncClients);

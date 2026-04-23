@@ -1,0 +1,814 @@
+{
+  "version": 2,
+  "updatedAt": "2026-04-23T00:00:00Z",
+  "plans": {
+    "plan_entry": {
+      "planId": "plan_entry",
+      "name": "Entry",
+      "tier": "entry",
+      "monthlyPrice": 499,
+      "currency": "ZAR",
+      "features": [
+        "Workspace hub",
+        "Shared vault",
+        "2 workspace users"
+      ],
+      "maxWorkspaceUsers": 2,
+      "maxStorageMb": 1024,
+      "isActive": true,
+      "metadata": {
+        "recommendedFor": "small teams"
+      }
+    },
+    "plan_pro": {
+      "planId": "plan_pro",
+      "name": "Pro",
+      "tier": "pro",
+      "monthlyPrice": 1299,
+      "currency": "ZAR",
+      "features": [
+        "Hub + tracker",
+        "Priority documents",
+        "5 workspace users"
+      ],
+      "maxWorkspaceUsers": 5,
+      "maxStorageMb": 5120,
+      "isActive": true,
+      "metadata": {
+        "recommendedFor": "growing clients"
+      }
+    },
+    "plan_enterprise": {
+      "planId": "plan_enterprise",
+      "name": "Enterprise",
+      "tier": "enterprise",
+      "monthlyPrice": 3499,
+      "currency": "ZAR",
+      "features": [
+        "Unlimited workspaces",
+        "Executive reporting",
+        "15 workspace users"
+      ],
+      "maxWorkspaceUsers": 15,
+      "maxStorageMb": 20480,
+      "isActive": true,
+      "metadata": {
+        "recommendedFor": "multi-team organizations"
+      }
+    }
+  },
+  "clients": {
+    "client_01": {
+      "clientId": "client_01",
+      "organization": {
+        "name": "Acme Industries",
+        "email": "workspace1@example.com",
+        "industry": "Manufacturing",
+        "avatarUrl": "https://ui-avatars.com/api/?name=Acme+Industries&background=6200ee&color=fff",
+        "workspaceSlug": "client_01",
+        "metadata": {
+          "folder": "client documents/client_01"
+        }
+      },
+      "phone": "+26657284264",
+      "phone_1": "+26657284265",
+      "phone_2": "+26657284266",
+      "subscription": {
+        "planId": "plan_pro",
+        "status": "active",
+        "startedAt": "2026-01-01T00:00:00Z",
+        "endsAt": "2026-12-31T23:59:59Z",
+        "renewsAt": "2027-01-01T00:00:00Z",
+        "metadata": {
+          "billingOwnerPhone": "+26657284264"
+        }
+      },
+      "workspaceUserPhones": [
+        "+26657284264",
+        "+26657990010"
+      ],
+      "resources": [],
+      "documents": [],
+      "metadata": {
+        "source": "clients.json",
+        "folder": "client documents/client_01",
+        "allowManualFirebaseEdits": true
+      }
+    },
+    "client_02": {
+      "clientId": "client_02",
+      "organization": {
+        "name": "Wayne Enterprises",
+        "email": "workspace2@example.com",
+        "industry": "Technology",
+        "avatarUrl": "https://ui-avatars.com/api/?name=Wayne+Enterprises&background=6200ee&color=fff",
+        "workspaceSlug": "client_02",
+        "metadata": {
+          "folder": "client documents/client_02"
+        }
+      },
+      "phone": "+26657654321",
+      "phone_1": "+26657654322",
+      "phone_2": "+26657654323",
+      "subscription": {
+        "planId": "plan_entry",
+        "status": "trial",
+        "startedAt": "2026-01-01T00:00:00Z",
+        "endsAt": "2026-12-31T23:59:59Z",
+        "renewsAt": "2027-01-01T00:00:00Z",
+        "metadata": {
+          "billingOwnerPhone": "+26657654321"
+        }
+      },
+      "workspaceUserPhones": [
+        "+26657654321",
+        "+26657990020"
+      ],
+      "resources": [],
+      "documents": [],
+      "metadata": {
+        "source": "clients.json",
+        "folder": "client documents/client_02",
+        "allowManualFirebaseEdits": true
+      }
+    },
+    "client_03": {
+      "clientId": "client_03",
+      "organization": {
+        "name": "Mokhotlong Media",
+        "email": "workspace3@example.com",
+        "industry": "Media",
+        "avatarUrl": "https://ui-avatars.com/api/?name=Mokhotlong+Media&background=6200ee&color=fff",
+        "workspaceSlug": "client_03",
+        "metadata": {
+          "folder": "client documents/client_03"
+        }
+      },
+      "phone": "+26657890010",
+      "phone_1": "+26657890011",
+      "phone_2": "+26657890012",
+      "subscription": {
+        "planId": "plan_enterprise",
+        "status": "active",
+        "startedAt": "2026-01-01T00:00:00Z",
+        "endsAt": "2026-12-31T23:59:59Z",
+        "renewsAt": "2027-01-01T00:00:00Z",
+        "metadata": {
+          "billingOwnerPhone": "+26657890010"
+        }
+      },
+      "workspaceUserPhones": [
+        "+26657890010",
+        "+26657990030"
+      ],
+      "resources": [],
+      "documents": [],
+      "metadata": {
+        "source": "clients.json",
+        "folder": "client documents/client_03",
+        "allowManualFirebaseEdits": true
+      }
+    },
+    "client_04": {
+      "clientId": "client_04",
+      "organization": {
+        "name": "Basotho Builders",
+        "email": "workspace4@example.com",
+        "industry": "Construction",
+        "avatarUrl": "https://ui-avatars.com/api/?name=Basotho+Builders&background=6200ee&color=fff",
+        "workspaceSlug": "client_04",
+        "metadata": {
+          "folder": "client documents/client_04"
+        }
+      },
+      "phone": "+26657890020",
+      "phone_1": "+26657890021",
+      "phone_2": "+26657890022",
+      "subscription": {
+        "planId": "plan_entry",
+        "status": "active",
+        "startedAt": "2026-01-01T00:00:00Z",
+        "endsAt": "2026-12-31T23:59:59Z",
+        "renewsAt": "2027-01-01T00:00:00Z",
+        "metadata": {
+          "billingOwnerPhone": "+26657890020"
+        }
+      },
+      "workspaceUserPhones": [
+        "+26657890020",
+        "+26657990040"
+      ],
+      "resources": [],
+      "documents": [],
+      "metadata": {
+        "source": "clients.json",
+        "folder": "client documents/client_04",
+        "allowManualFirebaseEdits": true
+      }
+    },
+    "client_05": {
+      "clientId": "client_05",
+      "organization": {
+        "name": "Maluti Traders",
+        "email": "workspace5@example.com",
+        "industry": "Retail",
+        "avatarUrl": "https://ui-avatars.com/api/?name=Maluti+Traders&background=6200ee&color=fff",
+        "workspaceSlug": "client_05",
+        "metadata": {
+          "folder": "client documents/client_05"
+        }
+      },
+      "phone": "+26657890030",
+      "phone_1": "+26657890031",
+      "phone_2": "+26657890032",
+      "subscription": {
+        "planId": "plan_pro",
+        "status": "active",
+        "startedAt": "2026-01-01T00:00:00Z",
+        "endsAt": "2026-12-31T23:59:59Z",
+        "renewsAt": "2027-01-01T00:00:00Z",
+        "metadata": {
+          "billingOwnerPhone": "+26657890030"
+        }
+      },
+      "workspaceUserPhones": [
+        "+26657890030",
+        "+26657990050"
+      ],
+      "resources": [],
+      "documents": [],
+      "metadata": {
+        "source": "clients.json",
+        "folder": "client documents/client_05",
+        "allowManualFirebaseEdits": true
+      }
+    },
+    "client_06": {
+      "clientId": "client_06",
+      "organization": {
+        "name": "Qiloane Legal",
+        "email": "workspace6@example.com",
+        "industry": "Legal",
+        "avatarUrl": "https://ui-avatars.com/api/?name=Qiloane+Legal&background=6200ee&color=fff",
+        "workspaceSlug": "client_06",
+        "metadata": {
+          "folder": "client documents/client_06"
+        }
+      },
+      "phone": "+26657890040",
+      "phone_1": "+26657890041",
+      "phone_2": "+26657890042",
+      "subscription": {
+        "planId": "plan_pro",
+        "status": "suspended",
+        "startedAt": "2026-01-01T00:00:00Z",
+        "endsAt": "2026-12-31T23:59:59Z",
+        "renewsAt": "2027-01-01T00:00:00Z",
+        "metadata": {
+          "billingOwnerPhone": "+26657890040"
+        }
+      },
+      "workspaceUserPhones": [
+        "+26657890040",
+        "+26657990060"
+      ],
+      "resources": [],
+      "documents": [],
+      "metadata": {
+        "source": "clients.json",
+        "folder": "client documents/client_06",
+        "allowManualFirebaseEdits": true
+      }
+    },
+    "client_07": {
+      "clientId": "client_07",
+      "organization": {
+        "name": "Thaba Health",
+        "email": "workspace7@example.com",
+        "industry": "Healthcare",
+        "avatarUrl": "https://ui-avatars.com/api/?name=Thaba+Health&background=6200ee&color=fff",
+        "workspaceSlug": "client_07",
+        "metadata": {
+          "folder": "client documents/client_07"
+        }
+      },
+      "phone": "+26657890050",
+      "phone_1": "+26657890051",
+      "phone_2": "+26657890052",
+      "subscription": {
+        "planId": "plan_enterprise",
+        "status": "active",
+        "startedAt": "2026-01-01T00:00:00Z",
+        "endsAt": "2026-12-31T23:59:59Z",
+        "renewsAt": "2027-01-01T00:00:00Z",
+        "metadata": {
+          "billingOwnerPhone": "+26657890050"
+        }
+      },
+      "workspaceUserPhones": [
+        "+26657890050",
+        "+26657990070"
+      ],
+      "resources": [],
+      "documents": [],
+      "metadata": {
+        "source": "clients.json",
+        "folder": "client documents/client_07",
+        "allowManualFirebaseEdits": true
+      }
+    },
+    "client_08": {
+      "clientId": "client_08",
+      "organization": {
+        "name": "Leribe Logistics",
+        "email": "workspace8@example.com",
+        "industry": "Logistics",
+        "avatarUrl": "https://ui-avatars.com/api/?name=Leribe+Logistics&background=6200ee&color=fff",
+        "workspaceSlug": "client_08",
+        "metadata": {
+          "folder": "client documents/client_08"
+        }
+      },
+      "phone": "+26657890060",
+      "phone_1": "+26657890061",
+      "phone_2": "+26657890062",
+      "subscription": {
+        "planId": "plan_entry",
+        "status": "inactive",
+        "startedAt": "2026-01-01T00:00:00Z",
+        "endsAt": "2026-12-31T23:59:59Z",
+        "renewsAt": "2027-01-01T00:00:00Z",
+        "metadata": {
+          "billingOwnerPhone": "+26657890060"
+        }
+      },
+      "workspaceUserPhones": [
+        "+26657890060",
+        "+26657990080"
+      ],
+      "resources": [],
+      "documents": [],
+      "metadata": {
+        "source": "clients.json",
+        "folder": "client documents/client_08",
+        "allowManualFirebaseEdits": true
+      }
+    },
+    "client_09": {
+      "clientId": "client_09",
+      "organization": {
+        "name": "Morija Education Trust",
+        "email": "workspace9@example.com",
+        "industry": "Education",
+        "avatarUrl": "https://ui-avatars.com/api/?name=Morija+Education+Trust&background=6200ee&color=fff",
+        "workspaceSlug": "client_09",
+        "metadata": {
+          "folder": "client documents/client_09"
+        }
+      },
+      "phone": "+26657890070",
+      "phone_1": "+26657890071",
+      "phone_2": "+26657890072",
+      "subscription": {
+        "planId": "plan_pro",
+        "status": "active",
+        "startedAt": "2026-01-01T00:00:00Z",
+        "endsAt": "2026-12-31T23:59:59Z",
+        "renewsAt": "2027-01-01T00:00:00Z",
+        "metadata": {
+          "billingOwnerPhone": "+26657890070"
+        }
+      },
+      "workspaceUserPhones": [
+        "+26657890070",
+        "+26657990090"
+      ],
+      "resources": [],
+      "documents": [],
+      "metadata": {
+        "source": "clients.json",
+        "folder": "client documents/client_09",
+        "allowManualFirebaseEdits": true
+      }
+    },
+    "client_10": {
+      "clientId": "client_10",
+      "organization": {
+        "name": "Semonkong Tourism",
+        "email": "workspace10@example.com",
+        "industry": "Travel",
+        "avatarUrl": "https://ui-avatars.com/api/?name=Semonkong+Tourism&background=6200ee&color=fff",
+        "workspaceSlug": "client_10",
+        "metadata": {
+          "folder": "client documents/client_10"
+        }
+      },
+      "phone": "+26657890080",
+      "phone_1": "+26657890081",
+      "phone_2": "+26657890082",
+      "subscription": {
+        "planId": "plan_entry",
+        "status": "trial",
+        "startedAt": "2026-01-01T00:00:00Z",
+        "endsAt": "2026-12-31T23:59:59Z",
+        "renewsAt": "2027-01-01T00:00:00Z",
+        "metadata": {
+          "billingOwnerPhone": "+26657890080"
+        }
+      },
+      "workspaceUserPhones": [
+        "+26657890080",
+        "+26657990100"
+      ],
+      "resources": [],
+      "documents": [],
+      "metadata": {
+        "source": "clients.json",
+        "folder": "client documents/client_10",
+        "allowManualFirebaseEdits": true
+      }
+    }
+  },
+  "workspaceUsers": {
+    "+26657284264": {
+      "phone": "+26657284264",
+      "clientId": "client_01",
+      "name": "Acme Industries Owner",
+      "email": "owner1@example.com",
+      "role": "owner",
+      "isActive": true,
+      "accessLevel": "owner",
+      "phone_1": "+26657284265",
+      "phone_2": "+26657284266",
+      "planId": "plan_pro",
+      "subscribed_to_whatsapp_otp": true,
+      "createdAt": "2026-01-01T08:00:00Z",
+      "lastLogin": "2026-04-20T09:30:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 1
+      }
+    },
+    "+26657990010": {
+      "phone": "+26657990010",
+      "clientId": "client_01",
+      "name": "Acme Industries Manager",
+      "email": "manager1@example.com",
+      "role": "manager",
+      "isActive": true,
+      "accessLevel": "manager",
+      "phone_1": "+26657284265",
+      "phone_2": "+26657284266",
+      "planId": "plan_pro",
+      "subscribed_to_whatsapp_otp": false,
+      "createdAt": "2026-01-05T10:00:00Z",
+      "lastLogin": "2026-04-18T11:15:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 2
+      }
+    },
+    "+26657654321": {
+      "phone": "+26657654321",
+      "clientId": "client_02",
+      "name": "Wayne Enterprises Owner",
+      "email": "owner2@example.com",
+      "role": "owner",
+      "isActive": true,
+      "accessLevel": "owner",
+      "phone_1": "+26657654322",
+      "phone_2": "+26657654323",
+      "planId": "plan_entry",
+      "subscribed_to_whatsapp_otp": false,
+      "createdAt": "2026-01-01T08:00:00Z",
+      "lastLogin": "2026-04-20T09:30:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 1
+      }
+    },
+    "+26657990020": {
+      "phone": "+26657990020",
+      "clientId": "client_02",
+      "name": "Wayne Enterprises Manager",
+      "email": "manager2@example.com",
+      "role": "manager",
+      "isActive": false,
+      "accessLevel": "manager",
+      "phone_1": "+26657654322",
+      "phone_2": "+26657654323",
+      "planId": "plan_entry",
+      "subscribed_to_whatsapp_otp": false,
+      "createdAt": "2026-01-05T10:00:00Z",
+      "lastLogin": "2026-04-18T11:15:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 2
+      }
+    },
+    "+26657890010": {
+      "phone": "+26657890010",
+      "clientId": "client_03",
+      "name": "Mokhotlong Media Owner",
+      "email": "owner3@example.com",
+      "role": "owner",
+      "isActive": true,
+      "accessLevel": "owner",
+      "phone_1": "+26657890011",
+      "phone_2": "+26657890012",
+      "planId": "plan_enterprise",
+      "subscribed_to_whatsapp_otp": true,
+      "createdAt": "2026-01-01T08:00:00Z",
+      "lastLogin": "2026-04-20T09:30:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 1
+      }
+    },
+    "+26657990030": {
+      "phone": "+26657990030",
+      "clientId": "client_03",
+      "name": "Mokhotlong Media Manager",
+      "email": "manager3@example.com",
+      "role": "manager",
+      "isActive": true,
+      "accessLevel": "manager",
+      "phone_1": "+26657890011",
+      "phone_2": "+26657890012",
+      "planId": "plan_enterprise",
+      "subscribed_to_whatsapp_otp": false,
+      "createdAt": "2026-01-05T10:00:00Z",
+      "lastLogin": "2026-04-18T11:15:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 2
+      }
+    },
+    "+26657890020": {
+      "phone": "+26657890020",
+      "clientId": "client_04",
+      "name": "Basotho Builders Owner",
+      "email": "owner4@example.com",
+      "role": "owner",
+      "isActive": true,
+      "accessLevel": "owner",
+      "phone_1": "+26657890021",
+      "phone_2": "+26657890022",
+      "planId": "plan_entry",
+      "subscribed_to_whatsapp_otp": false,
+      "createdAt": "2026-01-01T08:00:00Z",
+      "lastLogin": "2026-04-20T09:30:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 1
+      }
+    },
+    "+26657990040": {
+      "phone": "+26657990040",
+      "clientId": "client_04",
+      "name": "Basotho Builders Manager",
+      "email": "manager4@example.com",
+      "role": "manager",
+      "isActive": true,
+      "accessLevel": "manager",
+      "phone_1": "+26657890021",
+      "phone_2": "+26657890022",
+      "planId": "plan_entry",
+      "subscribed_to_whatsapp_otp": false,
+      "createdAt": "2026-01-05T10:00:00Z",
+      "lastLogin": "2026-04-18T11:15:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 2
+      }
+    },
+    "+26657890030": {
+      "phone": "+26657890030",
+      "clientId": "client_05",
+      "name": "Maluti Traders Owner",
+      "email": "owner5@example.com",
+      "role": "owner",
+      "isActive": true,
+      "accessLevel": "owner",
+      "phone_1": "+26657890031",
+      "phone_2": "+26657890032",
+      "planId": "plan_pro",
+      "subscribed_to_whatsapp_otp": true,
+      "createdAt": "2026-01-01T08:00:00Z",
+      "lastLogin": "2026-04-20T09:30:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 1
+      }
+    },
+    "+26657990050": {
+      "phone": "+26657990050",
+      "clientId": "client_05",
+      "name": "Maluti Traders Manager",
+      "email": "manager5@example.com",
+      "role": "manager",
+      "isActive": true,
+      "accessLevel": "manager",
+      "phone_1": "+26657890031",
+      "phone_2": "+26657890032",
+      "planId": "plan_pro",
+      "subscribed_to_whatsapp_otp": false,
+      "createdAt": "2026-01-05T10:00:00Z",
+      "lastLogin": "2026-04-18T11:15:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 2
+      }
+    },
+    "+26657890040": {
+      "phone": "+26657890040",
+      "clientId": "client_06",
+      "name": "Qiloane Legal Owner",
+      "email": "owner6@example.com",
+      "role": "owner",
+      "isActive": false,
+      "accessLevel": "owner",
+      "phone_1": "+26657890041",
+      "phone_2": "+26657890042",
+      "planId": "plan_pro",
+      "subscribed_to_whatsapp_otp": false,
+      "createdAt": "2026-01-01T08:00:00Z",
+      "lastLogin": "2026-04-20T09:30:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 1
+      }
+    },
+    "+26657990060": {
+      "phone": "+26657990060",
+      "clientId": "client_06",
+      "name": "Qiloane Legal Manager",
+      "email": "manager6@example.com",
+      "role": "manager",
+      "isActive": false,
+      "accessLevel": "manager",
+      "phone_1": "+26657890041",
+      "phone_2": "+26657890042",
+      "planId": "plan_pro",
+      "subscribed_to_whatsapp_otp": false,
+      "createdAt": "2026-01-05T10:00:00Z",
+      "lastLogin": "2026-04-18T11:15:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 2
+      }
+    },
+    "+26657890050": {
+      "phone": "+26657890050",
+      "clientId": "client_07",
+      "name": "Thaba Health Owner",
+      "email": "owner7@example.com",
+      "role": "owner",
+      "isActive": true,
+      "accessLevel": "owner",
+      "phone_1": "+26657890051",
+      "phone_2": "+26657890052",
+      "planId": "plan_enterprise",
+      "subscribed_to_whatsapp_otp": true,
+      "createdAt": "2026-01-01T08:00:00Z",
+      "lastLogin": "2026-04-20T09:30:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 1
+      }
+    },
+    "+26657990070": {
+      "phone": "+26657990070",
+      "clientId": "client_07",
+      "name": "Thaba Health Manager",
+      "email": "manager7@example.com",
+      "role": "manager",
+      "isActive": true,
+      "accessLevel": "manager",
+      "phone_1": "+26657890051",
+      "phone_2": "+26657890052",
+      "planId": "plan_enterprise",
+      "subscribed_to_whatsapp_otp": false,
+      "createdAt": "2026-01-05T10:00:00Z",
+      "lastLogin": "2026-04-18T11:15:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 2
+      }
+    },
+    "+26657890060": {
+      "phone": "+26657890060",
+      "clientId": "client_08",
+      "name": "Leribe Logistics Owner",
+      "email": "owner8@example.com",
+      "role": "owner",
+      "isActive": false,
+      "accessLevel": "owner",
+      "phone_1": "+26657890061",
+      "phone_2": "+26657890062",
+      "planId": "plan_entry",
+      "subscribed_to_whatsapp_otp": false,
+      "createdAt": "2026-01-01T08:00:00Z",
+      "lastLogin": "2026-04-20T09:30:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 1
+      }
+    },
+    "+26657990080": {
+      "phone": "+26657990080",
+      "clientId": "client_08",
+      "name": "Leribe Logistics Manager",
+      "email": "manager8@example.com",
+      "role": "manager",
+      "isActive": false,
+      "accessLevel": "manager",
+      "phone_1": "+26657890061",
+      "phone_2": "+26657890062",
+      "planId": "plan_entry",
+      "subscribed_to_whatsapp_otp": false,
+      "createdAt": "2026-01-05T10:00:00Z",
+      "lastLogin": "2026-04-18T11:15:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 2
+      }
+    },
+    "+26657890070": {
+      "phone": "+26657890070",
+      "clientId": "client_09",
+      "name": "Morija Education Trust Owner",
+      "email": "owner9@example.com",
+      "role": "owner",
+      "isActive": true,
+      "accessLevel": "owner",
+      "phone_1": "+26657890071",
+      "phone_2": "+26657890072",
+      "planId": "plan_pro",
+      "subscribed_to_whatsapp_otp": true,
+      "createdAt": "2026-01-01T08:00:00Z",
+      "lastLogin": "2026-04-20T09:30:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 1
+      }
+    },
+    "+26657990090": {
+      "phone": "+26657990090",
+      "clientId": "client_09",
+      "name": "Morija Education Trust Manager",
+      "email": "manager9@example.com",
+      "role": "manager",
+      "isActive": true,
+      "accessLevel": "manager",
+      "phone_1": "+26657890071",
+      "phone_2": "+26657890072",
+      "planId": "plan_pro",
+      "subscribed_to_whatsapp_otp": false,
+      "createdAt": "2026-01-05T10:00:00Z",
+      "lastLogin": "2026-04-18T11:15:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 2
+      }
+    },
+    "+26657890080": {
+      "phone": "+26657890080",
+      "clientId": "client_10",
+      "name": "Semonkong Tourism Owner",
+      "email": "owner10@example.com",
+      "role": "owner",
+      "isActive": true,
+      "accessLevel": "owner",
+      "phone_1": "+26657890081",
+      "phone_2": "+26657890082",
+      "planId": "plan_entry",
+      "subscribed_to_whatsapp_otp": false,
+      "createdAt": "2026-01-01T08:00:00Z",
+      "lastLogin": "2026-04-20T09:30:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 1
+      }
+    },
+    "+26657990100": {
+      "phone": "+26657990100",
+      "clientId": "client_10",
+      "name": "Semonkong Tourism Manager",
+      "email": "manager10@example.com",
+      "role": "manager",
+      "isActive": false,
+      "accessLevel": "manager",
+      "phone_1": "+26657890081",
+      "phone_2": "+26657890082",
+      "planId": "plan_entry",
+      "subscribed_to_whatsapp_otp": false,
+      "createdAt": "2026-01-05T10:00:00Z",
+      "lastLogin": "2026-04-18T11:15:00Z",
+      "metadata": {
+        "source": "clients.json",
+        "workspaceSeat": 2
+      }
+    }
+  }
+}
