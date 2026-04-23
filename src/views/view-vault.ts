@@ -102,7 +102,9 @@ export class ViewVault extends LitElement {
         fileName: document.fileName,
         category: document.category,
         updatedAt: document.updatedAt || document.uploadedAt,
-        source: document.resourceId ? `Linked to ${document.resourceId}` : 'Client documents',
+        source: document.resourceId
+          ? this.items.find((item) => item.id === document.resourceId)?.title || 'Linked resource'
+          : 'Client documents',
         downloadUrl: document.downloadUrl,
         accessLevel: document.accessLevel,
       }));

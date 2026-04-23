@@ -97,17 +97,7 @@ export class CoreViewport extends LitElement {
         return;
       }
 
-      this._workspaceUser = workspaceUser ?? {
-        phone: user.phone,
-        phone_1: user.phone_1,
-        phone_2: user.phone_2,
-        clientId,
-        name: user.name,
-        email: user.email,
-        role: user.role ?? 'viewer',
-        isActive: true,
-        planId: user.planId,
-      };
+      this._workspaceUser = workspaceUser ?? this._buildFallbackWorkspaceUser(user, clientId);
 
       let resourcesLoaded = false;
       let documentsLoaded = false;
@@ -160,6 +150,20 @@ export class CoreViewport extends LitElement {
       this._unsubscribeDocuments();
       this._unsubscribeDocuments = null;
     }
+  }
+
+  private _buildFallbackWorkspaceUser(user: ClientInfo, clientId: string): WorkspaceUser {
+    return {
+      phone: user.phone,
+      phone_1: user.phone_1,
+      phone_2: user.phone_2,
+      clientId,
+      name: user.name,
+      email: user.email,
+      role: user.role ?? 'viewer',
+      isActive: true,
+      planId: user.planId,
+    };
   }
 
   private renderDynamicView() {

@@ -99,6 +99,8 @@ const buildMergePayload = (data: Record<string, unknown>, includeCreatedAt = fal
   return payload;
 };
 
+const resolveResourceArtifacts = (data: Partial<ResourceItem>) => data.artifacts ?? data.resources;
+
 export function subscribeToClientResources(
   clientId: string,
   callback: (data: ResourceItem[]) => void,
@@ -199,7 +201,8 @@ export async function updateClientResource(
   const payload = buildMergePayload({
     ...data,
     clientId,
-    artifacts: data.artifacts ?? data.resources,
+    artifacts: resolveResourceArtifacts(data),
+    resources: resolveResourceArtifacts(data),
   } as Record<string, unknown>);
   await setDoc(resourceRef, payload, { merge: true });
 }
