@@ -59,11 +59,11 @@ const normalizeFirestoreValue = (value: unknown): unknown => {
   return value;
 };
 
-const normalizeRecord = <T extends Record<string, unknown>>(data: DocumentData): T => (
+const normalizeRecord = <T>(data: DocumentData): T => (
   normalizeFirestoreValue(data) as T
 );
 
-const normalizeDoc = <T extends Record<string, unknown>>(id: string, data: DocumentData): T => ({
+const normalizeDoc = <T>(id: string, data: DocumentData): T => ({
   id,
   ...normalizeRecord<T>(data),
 }) as T;

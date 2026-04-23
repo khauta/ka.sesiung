@@ -74,7 +74,7 @@ export interface Plan {
 
 export interface ClientDocument {
     id: string;
-    clientId?: string;
+    clientId: string;
     resourceId?: string;
     name: string;
     fileName: string;
